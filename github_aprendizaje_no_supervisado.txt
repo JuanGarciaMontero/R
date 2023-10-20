@@ -1,0 +1,37 @@
+# Dataset que contiene índices de criminalidad en los estados americanos
+data("USArrests")
+df <- USArrests
+# Excluyo valores NA
+df <- na.omit(df)
+# Normalizo los datos
+df2 <- (df-min(df))/(max(df) - min(df))
+# Algoritmo kmeans con dos clusters
+k2 <- kmeans(df2, centers = 2, nstart = 25)
+# Centroides obtenidos
+k2$centers
+# Número de ejemplos por cada agrupación
+table(k2$cluster)
+
+library(factoextra)
+# El siguiente plot representa los dos clusters agrupando las variables de entrada a través de la técnica PCA
+fviz_cluster(k2, data = df2)
+
+set.seed(123)
+# Gráfica para elegir el mejor número de clusters a través del método del codo
+fviz_nbclust(df2, kmeans, method = "wss")
+
+
+set.seed(123)
+# Repetimos el algoritmo utilizando 3 clusters
+final <- kmeans(df2, 3, nstart = 25)
+final$centers
+table(final$cluster)
+fviz_cluster(final, data = df2)
+
+# Predicción
+datos_new <- data.frame(Murder=14,Assault=200,UrbanPop=51,Rape=20)
+datos_new_norm <- (datos_new-min(df))/(max(df) - min(df))
+
+install.packages("clue")
+library(clue)
+cl_predict(final,datos_new)
